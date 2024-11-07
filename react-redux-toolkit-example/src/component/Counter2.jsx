@@ -1,9 +1,9 @@
 import React from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { countSlice } from './../store/countSlice';
 
 const Counter = () => {
   const num = useSelector((state) => {
+    console.log(state);
     return state.counter.num;
   });
 
@@ -12,7 +12,8 @@ const Counter = () => {
   return (
     <div>
       <button onClick={()=>{
-        dispatch(countSlice.actions.up(2));
+        // 타입 수정: 슬라이스이름 + 액션타입
+        dispatch({type: 'counterSlice/up', step: 2});
       }}>+</button>
       {num}
     </div>
