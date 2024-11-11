@@ -1,4 +1,3 @@
-import logo from './logo.svg';
 import './App.css';
 
 // 일반함수

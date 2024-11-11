@@ -1,83 +1,57 @@
-import logo from './logo.svg';
 import './App.css';
 
-
-function Header(props) {
-
-  console.log(props);
-
+// 헤더
+function Header() {
   return (
     <header>
-      <h1><a href='/' onClick={
-        (event) => {
-          event.preventDefault(); // 페이지 이동 방지
-          props.onChangeMode(); // props로 전달받은 이벤트함수 실행
-        }
-      }>{props.title}</a></h1>
+      <h1>헤더</h1>
     </header>
   );
-}
+};
 
-
+// 네비
 function Nav(props) {
+    return (
+      <ol>
+        {props.topics.map((t) => (
+          <li key={t.id}>
+            <a href={"/read/" + t.id} onClick={(event) => {
+              event.preventDefault();
+              console.log(event.target.id);
+              props.onChangeMode(t.id);
+            }}>{t.title}</a>
+          </li>
+        ))}
+      </ol>
+    );
+};
 
-  const lis = [];
 
-  for(let t of props.topics){
-    lis.push(<li key={t.id}>
-        <a href={'/read/' + t.id} id={t.id} onClick={
-          (event) => {
-            event.preventDefault(); // 이벤트 객체로 페이지 이동 방지
-            console.log(event.target.id);
-            props.onChangeMode(event.target.id);
-          }
-        }> {t.title} </a>
-      </li>)
-  }
 
-  return (
-    <ol>
-      {lis}
-    </ol>
+// 푸터
+function Footer() {
+  return(
+    <footer>
+      <h3>푸터</h3>
+    </footer>
   );
-}
+};
 
-function Article(props) {
-
-  return (
-    <article>
-      <h2>{props.title}</h2>
-      {props.body}
-    </article>
-  );
-}
 
 function App() {
-
   const topics = [
-    {id:1, title:'html', body:'html is ...'},
-    {id:2, title:'css', body:'css is ...'},
-    {id:3, title:'javascript', body:'javascript i s...'}
+    {id:1, title:'html', body:'html'},
+    {id:2, title:'css', body:'css'},
+    {id:3, title:'js', body:'js'}
   ];
 
   return (
     <div>
-      {/* Header 컴포넌트에 이벤트 기능 추가 */}
-      <Header title="web" onChangeMode={
-        () => {
-          alert('HI');
-        }
-      }></Header>
+      <Header></Header>
 
-      {/* Nav 컴포넌트에 이벤트 기능 추가
-        클릭하면 해당 id가 경고창으로 출력 */}
-      <Nav topics={topics} onChangeMode={
-        (id) => {
-          alert(id);
-        }
-      }></Nav>
+      <Nav topics={topics} onChangeMode={(id) => {alert(id)}}></Nav>
 
-      <Article title="Welcome" body="Hello, web"></Article>
+      <Footer></Footer>
     </div>
   );
 }
