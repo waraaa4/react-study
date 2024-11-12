@@ -5,6 +5,7 @@ import { useState } from "react";
 function TextCount({ text, setText }) {
   const textValue = (event) => {
     setText(event.target.value);
+    console.log(setText(event.target.value));
   };
 
   return (
