@@ -1,9 +1,12 @@
 // rafce => 자동완성
 import styled from "styled-components";
-import { Link } from 'react-router-dom';
-import { Button, Table } from 'react-bootstrap';
-import { CustomCard, CustomContainer } from '../components/Styles';
+import { Link } from "react-router-dom";
+import { Button, Table } from "react-bootstrap";
+import { CustomCard, CustomContainer } from "../components/Styles";
+
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import { useState, useEffect } from "react";
 
 // 아이템을 비율로 배치
 const Row = styled.div`
@@ -11,54 +14,88 @@ const Row = styled.div`
   grid-template-columns: 5fr 1fr;
 `;
 
-let data = [
-  {no:1, title:'1번', content:'1번입니다', writer: '둘리'},
-  {no:2, title:'2번', content:'2번입니다', writer: '또치'},
-  {no:3, title:'3번', content:'3번입니다', writer: '도우너'},
-];
+// API를 통해서 리스트 받아오기
+async function callAPI() {
+  const response = await axios.get("http://localhost:8080/board/list", {
+    headers: {
+      Authorization:
+        "eyJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3MzE0NjM3NTgsImV4cCI6MTczNDA1NTc1OCwic3ViIjoidXNlciJ9.jEg12gAxdAereXxir19hFXepj8n_EN2HPyUW81f4IuA",
+    },
+  });
+  if (response.status !== 200) {
+    throw new Error(`api error: ${response.status} ${response.statusText}`);
+  }
+  return response.data;
+}
 
-function BoardList(){
+function BoardList() {
+  const navigate = useNavigate();
 
-    const navigate = new useNavigate();
+  const [data, setData] = useState([]);
 
-    return (
-        <CustomCard>
-            <CustomContainer>
-                <Row>
-                    <h3>게시물 목록</h3>
-                    <Button variant="primary" onClick={()=>{
-                        navigate('/board/register');
-                    }}>게시물 등록</Button>
-                </Row>
-                <Table striped bordered hover>
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>제목</th>
-                            <th>작성자</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        
-            {/* data가 있는지 확인 */}
-            {/* 논리곱 연산자는 첫번째항이 false면 두번째항을 사용하지 않는다 */}
-            {/* 만약 data가 없는데 map함수를 호출하면 nullpoint 에러남 */}
+  useEffect(() => {
+    const getData = async () => {
+      const data = await callAPI();
+      setData(data); // state 업데이트
+    };
+    getData();
+  }, []);
 
-            {/* map함수로 게시물데이터를 <tr> 행으로 생성 */}
-                        {
-                            data.map((board)=>{
-                                return <tr>
-                                    <td><Link to={'/board/read/'+board.no}>{board.no}</Link></td>
-                                    <td>{board.title}</td>
-                                    <td>{board.writer}</td>
-                                </tr>
-                            })
-                        }
-                    </tbody>
-                </Table>
-            </CustomContainer>
-        </CustomCard>
-    );
+  // 날짜 포맷팅 함수 추가
+  const formatDate = (isoDate) => {
+    const date = new Date(isoDate);
+    return date.toLocaleString("ko-KR", {
+      year: "numeric", // 연도 표시
+      month: "2-digit", // 월 표시
+      day: "2-digit", // 일 표시
+      hour: "2-digit", // 시 표시
+      minute: "2-digit", // 분 표시
+      second: "2-digit", // 초 표시
+    });
+  };
+
+  return (
+    <CustomCard>
+      <CustomContainer>
+        <Row>
+          <h3>게시물 목록</h3>
+          <Button
+            variant="primary"
+            onClick={() => {
+              navigate("/board/register");
+            }}
+          >
+            게시물 등록
+          </Button>
+        </Row>
+        <Table striped bordered hover>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>제목</th>
+              <th>작성자</th>
+              <th>등록일</th>
+            </tr>
+          </thead>
+          <tbody>
+            {data !== null &&
+              data.map((board) => {
+                return (
+                  <tr key={board.no}>
+                    <td>
+                      <Link to={"/board/read/" + board.no}>{board.no}</Link>
+                    </td>
+                    <td>{board.title}</td>
+                    <td>{board.writer}</td>
+                    <td>{formatDate(board.regDate)}</td>
+                  </tr>
+                );
+              })}
+          </tbody>
+        </Table>
+      </CustomContainer>
+    </CustomCard>
+  );
 }
 
 export default BoardList;
