@@ -1,9 +1,8 @@
-import logo from "./logo.svg";
 import "./App.css";
 import { useState } from "react";
 
-// 처음
-function Header(props) {
+// Header 컴포넌트
+function Header({ title, onChangeMode }) {
   return (
     <header>
       <h1>
@@ -11,53 +10,51 @@ function Header(props) {
           href="/"
           onClick={(event) => {
             event.preventDefault();
-            props.onChangeMode();
+            onChangeMode();
           }}
         >
-          {props.title}
+          {title}
         </a>
       </h1>
     </header>
   );
 }
 
-function Nav(props) {
-  const lis = [];
-
-  for (let t of props.topics) {
-    lis.push(
-      <li key={t.id}>
-        <a
-          id={t.id}
-          href={"/read/" + t.id}
-          onClick={function (event) {
-            event.preventDefault();
-            props.onChangeMode(Number(event.target.id));
-          }}
-        >
-          {t.title}
-        </a>
-      </li>
-    );
-  }
-
+// Nav 컴포넌트
+function Nav({ topics, onChangeMode }) {
   return (
     <nav>
-      <ol>{lis}</ol>
+      <ol>
+        {topics.map((topic) => (
+          <li key={topic.id}>
+            <a
+              href={"/read/" + topic.id}
+              onClick={(event) => {
+                event.preventDefault();
+                onChangeMode(topic.id);
+              }}
+            >
+              {topic.title}
+            </a>
+          </li>
+        ))}
+      </ol>
     </nav>
   );
 }
 
-function Article(props) {
+// Article 컴포넌트
+function Article({ title, body }) {
   return (
     <article>
-      <h2>{props.title}</h2>
-      {props.body}
+      <h2>{title}</h2>
+      <p>{body}</p>
     </article>
   );
 }
 
-function Create(props) {
+// Create 컴포넌트
+function Create({ onCreate }) {
   return (
     <article>
       <h2>Create</h2>
@@ -66,94 +63,154 @@ function Create(props) {
           event.preventDefault();
           const title = event.target.title.value;
           const body = event.target.body.value;
-          props.onCreate(title, body);
+          onCreate(title, body);
         }}
       >
         <p>
-          <input type="text" name="title" placeholder="title"></input>
+          <input type="text" name="title" placeholder="Title" required />
         </p>
         <p>
-          <textarea name="body" placeholder="body"></textarea>
+          <textarea name="body" placeholder="Body" required></textarea>
         </p>
         <p>
-          <input type="submit" value="Create"></input>
+          <input type="submit" value="Create" />
         </p>
       </form>
     </article>
   );
 }
-//
+
+// Update 컴포넌트
+function Update({ title: initialTitle, body: initialBody, onUpdate }) {
+  const [title, setTitle] = useState(initialTitle);
+  const [body, setBody] = useState(initialBody);
+
+  return (
+    <article>
+      <h2>Update</h2>
+      <form
+        onSubmit={(event) => {
+          event.preventDefault();
+          onUpdate(title, body);
+        }}
+      >
+        <p>
+          <input
+            type="text"
+            name="title"
+            value={title}
+            onChange={(event) => setTitle(event.target.value)}
+            placeholder="Title"
+            required
+          />
+        </p>
+        <p>
+          <textarea
+            name="body"
+            value={body}
+            onChange={(event) => setBody(event.target.value)}
+            placeholder="Body"
+            required
+          />
+        </p>
+        <p>
+          <input type="submit" value="Update" />
+        </p>
+      </form>
+    </article>
+  );
+}
+
+// App 컴포넌트
 function App() {
-  let [mode, setMode] = useState("WELCOME");
-
-  let [id, setId] = useState(null);
-
-  let content = null;
-
-  let [topics, setTopics] = useState([
+  const [mode, setMode] = useState("WELCOME");
+  const [id, setId] = useState(null);
+  const [topics, setTopics] = useState([
     { id: 1, title: "html", body: "html is ..." },
     { id: 2, title: "css", body: "css is ..." },
     { id: 3, title: "javascript", body: "javascript is ..." },
   ]);
+  const [nextId, setNextId] = useState(4);
 
-  let [nextId, setNextId] = useState(4);
+  let content = null;
+  let contextControl = null;
 
   if (mode === "WELCOME") {
-    content = <Article title="Welcome" body="Hello, Web"></Article>;
+    content = <Article title="Welcome" body="Hello, Web" />;
   } else if (mode === "READ") {
-    let title,
-      body = null;
-    for (let t of topics) {
-      console.log(t.id, id);
-      if (t.id === id) {
-        title = t.title;
-        body = t.body;
-      }
+    const topic = topics.find((t) => t.id === id);
+    if (topic) {
+      content = <Article title={topic.title} body={topic.body} />;
+      contextControl = (
+        <li>
+          <a
+            href={"/update/" + id}
+            onClick={(event) => {
+              event.preventDefault();
+              setMode("UPDATE");
+            }}
+          >
+            Update
+          </a>
+        </li>
+      );
     }
-    content = <Article title={title} body={body}></Article>;
   } else if (mode === "CREATE") {
     content = (
       <Create
-        onCreate={(_title, _body) => {
-          const newTopic = { id: nextId, title: _title, body: _body };
-          const newTopics = [...topics];
-          newTopics.push(newTopic);
-          setTopics(newTopics);
-          setMode("READ");
-          setId(nextId);
+        onCreate={(title, body) => {
+          const newTopic = { id: nextId, title, body };
+          setTopics([...topics, newTopic]);
           setNextId(nextId + 1);
+          setMode("READ");
+          setId(newTopic.id);
         }}
-      ></Create>
+      />
     );
+  } else if (mode === "UPDATE") {
+    const topic = topics.find((t) => t.id === id);
+    if (topic) {
+      content = (
+        <Update
+          title={topic.title}
+          body={topic.body}
+          onUpdate={(title, body) => {
+            const updatedTopics = topics.map((t) =>
+              t.id === id ? { ...t, title, body } : t
+            );
+            setTopics(updatedTopics);
+            setMode("READ");
+          }}
+        />
+      );
+    }
   }
 
   return (
     <div className="App">
-      <Header
-        title="WEB"
-        onChangeMode={function () {
-          setMode("WELCOME");
-        }}
-      ></Header>
-
+      <Header title="WEB" onChangeMode={() => setMode("WELCOME")} />
       <Nav
         topics={topics}
-        onChangeMode={function (_id) {
+        onChangeMode={(id) => {
           setMode("READ");
-          setId(_id);
+          setId(id);
         }}
-      ></Nav>
+      />
       {content}
-
-      <a
-        href="/create"
-        onClick={(event) => {
-          event.preventDefault();
-          setMode("CREATE");
-        }}
-      >
-        Create
-      </a>
+      <ul>
+        <li>
+          <a
+            href="/create"
+            onClick={(event) => {
+              event.preventDefault();
+              setMode("CREATE");
+            }}
+          >
+            Create
+          </a>
+        </li>
+        {contextControl}
+      </ul>
     </div>
   );
 }
