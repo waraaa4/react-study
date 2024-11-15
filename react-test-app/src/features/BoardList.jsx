@@ -4,55 +4,49 @@ import { Link } from "react-router-dom";
 import { Button, Table } from "react-bootstrap";
 import { CustomCard, CustomContainer } from "../components/Styles";
 
-import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useState, useEffect } from "react";
-
+import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
 // 아이템을 비율로 배치
 const Row = styled.div`
   display: grid;
   grid-template-columns: 5fr 1fr;
 `;
 
-// API를 통해서 리스트 받아오기
-async function callAPI() {
-  const response = await axios.get("http://localhost:8080/board/list", {
-    headers: {
-      Authorization:
-        "eyJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3MzE0NjM3NTgsImV4cCI6MTczNDA1NTc1OCwic3ViIjoidXNlciJ9.jEg12gAxdAereXxir19hFXepj8n_EN2HPyUW81f4IuA",
-    },
-  });
-  if (response.status !== 200) {
-    throw new Error(`api error: ${response.status} ${response.statusText}`);
-  }
-  return response.data;
-}
-
 function BoardList() {
-  const navigate = useNavigate();
+  console.log("BoardList.....");
 
+  const navigate = new useNavigate();
+
+  // 리스트를 state로 생성
   const [data, setData] = useState([]);
 
   useEffect(() => {
-    const getData = async () => {
-      const data = await callAPI();
-      setData(data); // state 업데이트
+    // 게시물 목록 요청 API
+    const getDatea = async () => {
+      // 주소, 헤더
+      // 192.168.0.67
+      const response = await axios.get("http://localhost:8080/board/list", {
+        headers: {
+          Authorization:
+            "eyJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3MzE0NjM3NTgsImV4cCI6MTczNDA1NTc1OCwic3ViIjoidXNlciJ9.jEg12gAxdAereXxir19hFXepj8n_EN2HPyUW81f4IuA",
+        },
+      });
+      // 요청에 실패했을 경우
+      if (response.status !== 200) {
+        throw new Error(`api error ${response.status} ${response.statusText}`);
+      }
+      // state 변경 => 컴포넌트가 다시 랜더링
+      setData(response.data); // API를 통해 응답받은 리스트를 업데이트
     };
-    getData();
-  }, []);
 
-  // 날짜 포맷팅 함수 추가
-  const formatDate = (isoDate) => {
-    const date = new Date(isoDate);
-    return date.toLocaleString("ko-KR", {
-      year: "numeric", // 연도 표시
-      month: "2-digit", // 월 표시
-      day: "2-digit", // 일 표시
-      hour: "2-digit", // 시 표시
-      minute: "2-digit", // 분 표시
-      second: "2-digit", // 초 표시
-    });
-  };
+    getDatea();
+
+    // api 호출 -> state 변경 -> 컴포넌트 다시 랜더링
+    // -> api 호출 -> state 변경 ... 무한 루프
+  }, []);
+  // useEffect: 컴포넌트가 생성될때 한번만 코드를 실행하기 위해 사용
 
   return (
     <CustomCard>
@@ -74,7 +68,6 @@ function BoardList() {
               <th>#</th>
               <th>제목</th>
               <th>작성자</th>
-              <th>등록일</th>
             </tr>
           </thead>
           <tbody>
@@ -87,7 +80,6 @@ function BoardList() {
                     </td>
                     <td>{board.title}</td>
                     <td>{board.writer}</td>
-                    <td>{formatDate(board.regDate)}</td>
                   </tr>
                 );
               })}
