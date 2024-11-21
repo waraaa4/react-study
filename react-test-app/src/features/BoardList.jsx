@@ -15,8 +15,6 @@ const Row = styled.div`
 `;
 
 function BoardList() {
-  console.log("BoardList.....");
-
   const navigate = new useNavigate();
 
   // 리스트를 state로 생성

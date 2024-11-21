@@ -1,48 +1,55 @@
-// rafce => 자동완성
-import { useState } from "react";
 import { CustomCard, CustomContainer } from "../components/Styles";
 import { Form, Button } from "react-bootstrap";
+
+import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
-import { useEffect } from "react";
+
+import { Context } from "../index";
+import { useContext } from "react";
+
+// 브라우저 보안 정책으로 인해 외부에 있는 파일(c:\\uploadfile)을 가지고 올 수 없음
+// S3를 사용하기 전에, 임시로 업로드 파일을 React 프로젝트 안에 저장할 것
+
+// public 아래 images 폴더
+const IMG_PATH = "C://uploadfile/";
+// const IMG_PATH = '/images/';
 
 function BoardDetail() {
-  // useParams: URL 주소에 포함된 파라미터를 추출하는 기능
+  const navigate = new useNavigate();
+
   const params = useParams();
 
-  console.log(params);
+  const [board, setBoard] = useState(null);
 
-  // 게시물 데이터를 state로 저장
-  let [board, setBoard] = useState(null);
+  // 컨텍스트에서 host 데이터 가져오기
+  const { host } = useContext(Context);
 
-  // 컴포넌트가 생성될 때 한번만 API를 호출하여
-  // 게시물 데이터를 출력
+  // 1. useEffect를 사용하면 처음에 화면이 렌더링되고
+  // 2. useEffect 안에 있는 apicall이 실행되고
+  // 3. setState로 화면이 다시 렌더링 되면서 board 데이터가 출력됨
+  // 처음 렌더링 될때: 화면에 데이터 없음
+  // 두번째로 렌더링 될때: 화면에 데이터 있음
+
   useEffect(() => {
-    // 상세 조회 API 호출
+    // 함수 정의
     const apicall = async () => {
-      // 주소, 헤더
-      const response = await axios.get(
-        `http://localhost:8080/board/read?no=${params.no}`,
-        {
-          headers: {
-            Authorization:
-              "eyJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3MzE0NjM3NTgsImV4cCI6MTczNDA1NTc1OCwic3ViIjoidXNlciJ9.jEg12gAxdAereXxir19hFXepj8n_EN2HPyUW81f4IuA",
-          },
-        }
-      );
-      // 요청에 실패했다면
+      // const response = await axios.get(`http://localhost:8080/board/read?no=${params.no}`, {
+      const response = await axios.get(`${host}/board/read?no=${params.no}`, {
+        headers: {
+          Authorization:
+            "eyJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3MzE0NjM3NTgsImV4cCI6MTczNDA1NTc1OCwic3ViIjoidXNlciJ9.jEg12gAxdAereXxir19hFXepj8n_EN2HPyUW81f4IuA",
+        },
+      });
       if (response.status !== 200) {
         throw new Error(`api error: ${response.status} ${response.statusText}`);
+      } else {
+        setBoard(response.data);
       }
-      console.log(response.data);
-
-      // API를 통해 응답받은 데이터를 state에 업데이트
-      setBoard(response.data);
     };
+    // 함수 호출
     apicall();
-  }, []);
-
-  const navigate = new useNavigate();
+  }, []); //빈배열을 넣어서 처음 렌더링 때만 호출
 
   return (
     <CustomCard>
@@ -96,10 +103,13 @@ function BoardDetail() {
                 readOnly
               ></Form.Control>
             </Form.Group>
+            {/* 이미지 */}
+            {/* <img src={`${IMG_PATH}${board.imgPath}`}></img> */}
+
             <Button
               variant="primary"
               onClick={() => {
-                navigate(`/board/modify/ + ${board.no}`);
+                navigate(`/board/modify/${params.no}`);
               }}
             >
               게시물 수정

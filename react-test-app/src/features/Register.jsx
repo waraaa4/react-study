@@ -1,46 +1,101 @@
-import { Form, Button } from 'react-bootstrap';
-import { CustomCard, CustomContainer } from '../components/Styles';
+import { Form, Button } from "react-bootstrap";
+import { CustomCard, CustomContainer } from "../components/Styles";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
-// API 호출을 위해 각 입력필드에 name 추가
+import { Context } from "../index";
+import { useContext } from "react";
 
 const Register = () => {
+  const navigate = useNavigate();
+
+  const [member, setMember] = useState(null);
+
+  // 컨텍스트에서 host 데이터 가져오기
+  const { host } = useContext(Context);
+
+  function handleChange(e) {
+    const { name, value } = e.target;
+
+    const newMember = { ...member };
+
+    newMember[name] = value;
+
+    setMember(newMember);
+  }
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    const response = await axios.post(`${host}/register`, member);
+
+    // const response = await axios.post(
+    //   'http://3.35.231.182:8080/register',
+    //   member
+    // );
+
+    if (response.status !== 201) {
+      throw new Error(`api error: ${response.status} ${response.statusText}`);
+    } else {
+      navigate("/login");
+    }
+  };
+
   return (
     <CustomCard>
-        <CustomContainer>
-          <form>
-            <h3>회원가입</h3>
-            {/* Form 가져오기 */}
-            {/* Form.Group -> <div> */}
-            {/* controlId -> label과 input의 id 설정됨 -> 라벨을 누르면 입력필드에 포커싱됨 */}
-            <Form.Group className="mb-3" controlId="member.id">  {/* controlId: 다른 필드와 중복안되게 */}
-              {/* Form.Label -> <label> */}
-              {/* Form.Control -> <input> */}
-              <Form.Label>아이디</Form.Label> 
-              <Form.Control type="text" name="id"></Form.Control>
-            </Form.Group>
-            <Form.Group className="mb-3" controlId="member.password">
-              <Form.Label>비밀번호</Form.Label>
-              <Form.Control type="password" name="password"></Form.Control>
-            </Form.Group>
-            <Form.Group className="mb-3" controlId="member.name">
-                <Form.Label>이름</Form.Label>
-                <Form.Control type="text" name="name"></Form.Control>
-            </Form.Group>
-            {/* Form - Checks and radios 가져오기 */}
-            <Form.Group className="mb-3">
-              {/* name,value 추가 */}
-              {/* Form.Check -> <lable> + <input> */}
-              <Form.Check type="radio" name="role" id="member.role1" label="사용자" value="ROLE_USER" />
-              <Form.Check type="radio" name="role" id="member.role2" label="관리자" value="ROLE_ADMIN" />
-            </Form.Group>
-            {/* Components > Buttons 색 변경하기 */}
-            <Button variant="primary" type="submit">
-              등록
-            </Button>
-          </form>
-        </CustomContainer>
+      <CustomContainer>
+        <h3>회원가입</h3>
+        <form onSubmit={handleSubmit}>
+          <Form.Group controlId="member.id">
+            <Form.Label>아이디</Form.Label>
+            <Form.Control
+              type="text"
+              onChange={handleChange}
+              name="id"
+            ></Form.Control>
+          </Form.Group>
+          <Form.Group controlId="member.password">
+            <Form.Label>비밀번호</Form.Label>
+            <Form.Control
+              type="password"
+              onChange={handleChange}
+              name="password"
+            ></Form.Control>
+          </Form.Group>
+          <Form.Group controlId="member.name">
+            <Form.Label>이름</Form.Label>
+            <Form.Control
+              type="text"
+              onChange={handleChange}
+              name="name"
+            ></Form.Control>
+          </Form.Group>
+          <Form.Group controlId="member.role">
+            <Form.Check
+              value="ROLE_USER"
+              type="radio"
+              name="role"
+              id="role1"
+              label="사용자"
+              onChange={handleChange}
+            />
+            <Form.Check
+              value="ROLE_ADMIN"
+              type="radio"
+              name="role"
+              id="role2"
+              label="관리자"
+              onChange={handleChange}
+            />
+          </Form.Group>
+          <Button variant="secondary" type="submit">
+            등록
+          </Button>
+        </form>
+      </CustomContainer>
     </CustomCard>
-  )
-}
+  );
+};
 
-export default Register
+export default Register;
