@@ -4,7 +4,6 @@ import { CustomCard, CustomContainer } from "../components/Styles";
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
-import { useSelector } from "react-redux";
 
 import { Context } from "../index";
 import { useContext } from "react";

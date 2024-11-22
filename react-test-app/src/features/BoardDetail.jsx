@@ -12,7 +12,8 @@ import { useContext } from "react";
 // S3를 사용하기 전에, 임시로 업로드 파일을 React 프로젝트 안에 저장할 것
 
 // public 아래 images 폴더
-const IMG_PATH = "C://uploadfile/";
+// const IMG_PATH = "C://uploadfile/";
+const IMG_PATH = "/images//";
 // const IMG_PATH = '/images/';
 
 function BoardDetail() {
@@ -50,6 +51,9 @@ function BoardDetail() {
     // 함수 호출
     apicall();
   }, []); //빈배열을 넣어서 처음 렌더링 때만 호출
+
+  // 실제 파일은 존재하지만
+  // 브라우저 정책에 의해 프로젝트 외부 경로에 접근을 할 수 없음!
 
   return (
     <CustomCard>
@@ -104,7 +108,7 @@ function BoardDetail() {
               ></Form.Control>
             </Form.Group>
             {/* 이미지 */}
-            {/* <img src={`${IMG_PATH}${board.imgPath}`}></img> */}
+            <img src={`${IMG_PATH}${board.imgPath}`}></img>
 
             <Button
               variant="primary"
