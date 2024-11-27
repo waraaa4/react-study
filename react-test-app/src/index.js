@@ -15,7 +15,22 @@ import { login } from "./store/memberSlice";
 export const Context = createContext();
 
 // API 주소
-let host = "http://localhost:8080";
+// let host = "http://localhost:8080";
+
+// AWS 서버의 API 주소
+// let host =
+//   "http://ec2-43-201-100-137.ap-northeast-2.compute.amazonaws.com:8080";
+
+// 로컬 컴퓨터에서 React App을 실행할 때는
+// API 주소도 localhost로 설정
+// 그렇지 않으면 (Netlify에서) AWS 서버로 설정
+let host;
+if (window.location.hostname === "localhost") {
+  host = "http://localhost:8080";
+} else {
+  host = "http://ec2-43-201-100-137.ap-northeast-2.compute.amazonaws.com:8080";
+}
+console.log(host);
 
 // 앱이 시작될 때 스토리지에 있는 로그인 정보를 확인하여 로그인상태 유지
 

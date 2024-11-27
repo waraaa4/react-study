@@ -61,12 +61,12 @@ const BoardRegister = () => {
     const response = await axios.post(
       // 'http://localhost:8080/board/register',
       `${host}/board/register`,
-      board,
-      // formData,
+      // board,
+      formData,
       {
         headers: {
           Authorization:
-            "eyJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3MzIyMzUyOTAsImV4cCI6MTczNDgyNzI5MCwic3ViIjoiYWRtaW4ifQ.MaSjITcCUdeq44h62h-XQ6uaqE-SacyCEDQd5D5h59U",
+            "eyJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3MzIyMzY1NzAsImV4cCI6MTczNDgyODU3MCwic3ViIjoiYWRtaW4ifQ.Dtn4_L2GYHCWiDcKaN4rf5e3CYBlxH8YQ4EJFFR4tig",
         },
       }
     );

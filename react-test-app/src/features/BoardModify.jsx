@@ -75,7 +75,7 @@ const BoardModify = () => {
     const response = await axios.delete(`${host}/board/remove?no=${no}`, {
       headers: {
         Authorization:
-          "eyJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3MzE0NjM3NTgsImV4cCI6MTczNDA1NTc1OCwic3ViIjoidXNlciJ9.jEg12gAxdAereXxir19hFXepj8n_EN2HPyUW81f4IuA",
+          "eyJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3MzIyMzY1NzAsImV4cCI6MTczNDgyODU3MCwic3ViIjoiYWRtaW4ifQ.Dtn4_L2GYHCWiDcKaN4rf5e3CYBlxH8YQ4EJFFR4tig",
       },
     });
 
